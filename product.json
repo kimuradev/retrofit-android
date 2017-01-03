@@ -1,0 +1,15 @@
+{
+	"Product": [{
+		"id": 1,
+		"name": "Shampoo",
+		"description": "Para cabelo"
+	}, {
+		"id": 2,
+		"name": "Condicionador",
+		"description": "Para cabelo liso"
+	}, {
+		"id": 3,
+		"name": "Header and Shoulder",
+		"description": "Para cabelo com caspa"
+	}]
+}
