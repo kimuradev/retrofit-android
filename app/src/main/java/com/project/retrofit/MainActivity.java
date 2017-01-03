@@ -11,6 +11,7 @@ import android.widget.ListView;
 import com.project.retrofit.adapter.ProductAdapter;
 import com.project.retrofit.model.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Call;
@@ -21,10 +22,12 @@ import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String BASE_URL = "http://192.168.25.161:3000/Product";
+    private final static String BASE_URL = "http://172.16.211.240:3000/Product";
     private ListView listView;
     private EditText edtId;
     private Button btnFilter;
+    private Retrofit retrofit;
+    private EndPointInterface service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
         edtId = (EditText) findViewById(R.id.edt_id);
         btnFilter = (Button) findViewById(R.id.btn_filter);
 
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
+        retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
+        service = retrofit.create(EndPointInterface.class);
 
-        EndPointInterface service = retrofit.create(EndPointInterface.class);
         Call<List<Product>> call = service.getProductList();
 
         call.enqueue(new Callback<List<Product>>() {
@@ -46,10 +49,10 @@ public class MainActivity extends AppCompatActivity {
                try{
                    List<Product> productList = response.body();
                    ProductAdapter adapter = new ProductAdapter(getApplicationContext(), R.layout.list_item, productList);
+
                    listView.setAdapter(adapter);
-                   /*for(int i = 0; i < productList.size(); i++){
-                       Log.d("Product: ", productList.get(i).getName() + " - " +  productList.get(i).getDescription());
-                   }*/
+
+                   adapter.notifyDataSetChanged();
                }catch(Exception e ){
                    Log.d("Exception", e.getMessage());
                }
@@ -61,25 +64,29 @@ public class MainActivity extends AppCompatActivity {
            }
        });
 
-       /* btnFilter.setOnClickListener(new View.OnClickListener() {
+        btnFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
 
-                EndPointInterface service = retrofit.create(EndPointInterface.class);
-                Call<List<Product>> call = service.getProductById(edtId.getText().toString());
+                Call<Product> call = service.getProductById(edtId.getText().toString());
 
-                call.enqueue(new Callback<List<Product>>() {
+                call.enqueue(new Callback<Product>() {
                     @Override
-                    public void onResponse(Response<List<Product>> response, Retrofit retrofit) {
+                    public void onResponse(Response<Product> response, Retrofit retrofit) {
                         try{
-                            List<Product> productList = response.body();
-                            ProductAdapter adapter = new ProductAdapter(getApplicationContext(), R.layout.list_item, productList);
+                            List<Product> list = new ArrayList<Product>();
+                            Product productList = response.body();
+
+                            list.add(productList);
+                            Log.d("Name: ", productList.getName());
+                            Log.d("Description", productList.getDescription());
+
+                            ProductAdapter adapter = new ProductAdapter(getApplicationContext(), R.layout.list_item, list);
+
                             listView.setAdapter(adapter);
-                            listView.notifyAll();
-                   *//*for(int i = 0; i < productList.size(); i++){
-                       Log.d("Product: ", productList.get(i).getName() + " - " +  productList.get(i).getDescription());
-                   }*//*
+
+                            adapter.notifyDataSetChanged();
+
                         }catch(Exception e ){
                             Log.d("Exception", e.getMessage());
                         }
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-        });*/
+        });
 
 
     }
